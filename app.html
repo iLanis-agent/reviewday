@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReviewDay - when to review what you learned</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#18151f; color:#f3ede6; line-height:1.5; }
+  .wrap { max-width:700px; margin:0 auto; padding:26px 16px 50px; }
+  h1 { font-size:28px; } h1 span { color:#b69cff; }
+  .sub { color:#b5aa9c; margin:6px 0 16px; }
+  .card { background:#241f30; border-radius:14px; padding:14px; margin-bottom:12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
+  label { font-size:12px; color:#b5aa9c; display:block; margin-bottom:3px; }
+  input,select { width:100%; background:#18151f; color:#f3ede6; border:1px solid #574f48; border-radius:8px; padding:8px; font-size:15px; font-family:inherit; }
+  button { background:#3b3150; color:#f3ede6; border:0; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:14px; margin-right:6px; margin-top:10px; }
+  table { width:100%; border-collapse:collapse; } td,th { text-align:left; padding:8px 4px; border-bottom:1px solid #433c36; } th { font-size:12px; color:#b5aa9c; font-weight:600; }
+  td.v { font-size:22px; font-weight:800; color:#b69cff; } tr.me td.v { color:#f3ede6; }
+  .stats { display:flex; gap:22px; flex-wrap:wrap; margin-top:12px; } .stats b { display:block; font-size:20px; } .muted { color:#b5aa9c; font-size:13px; }
+  .err { color:#ff9c8a; } .note { font-size:12.5px; color:#8c8174; margin-top:6px; }
+
+  td.v { font-size:17px; } td { font-size:14px; } .tag { font-size:11px; background:#3b3150; border-radius:99px; padding:1px 8px; margin-left:6px; } .bad { background:#6b2a2a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Review<span>Day</span></h1>
+  <div class="sub">Type how each review went and see when the next one is due, using the SM-2 spaced repetition schedule.</div>
+  <div class="card">
+    <div class="grid"><div><label>You learned it on</label><input id="start" type="date"></div><div><label>Ratings so far, in order (0 to 5)</label><input id="seq" value="4 4 4"></div></div>
+    <div class="note">The first rating is the day you learned it. 5 perfect, 4 correct after hesitation, 3 correct with serious difficulty, 2 wrong but seemed easy, 1 wrong but remembered, 0 blackout.</div>
+    <button id="p1">Always 4</button><button id="p2">Always 5</button><button id="p3">Always 3</button><button id="p4">Slip at the 4th review</button>
+  </div>
+  <div class="card" id="out"></div>
+  <div class="note">Algorithm: SM-2 by Piotr Wozniak (super-memory.com). Intervals: 1 day, then 6 days, then previous interval times the easiness factor (EF), rounded up. EF starts at 2.5 and changes by 0.1 - (5-q)(0.08 + (5-q)0.02) after each rating q, never below 1.3. A rating under 3 restarts the sequence and leaves EF unchanged. The source says to repeat items rated under 4 again the same day. The app applies the new EF to the interval right after each rating. This is the original 1987 method, not what modern apps use today, and it is a plan, not a memory test. Runs in your browser, nothing stored.</div>
+</div>
+<script src="engine.js"></script>
+<script>
+(function () {
+  var R = window.ReviewDay, $ = function (i) { return document.getElementById(i); };
+  var t = new Date(); $('start').value = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
+  function nice(iso) { var d = new Date(iso + 'T00:00:00Z'); return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }); }
+  function render() {
+    var q = R.parse($('seq').value), s = q && q.length ? R.schedule($('start').value, q) : null;
+    if (!s) { $('out').innerHTML = '<div class="err">Enter a start date and 1 to 40 ratings, each from 0 to 5 (for example 4 4 5 3).</div>'; return; }
+    var rows = s.rows.map(function (r) {
+      var tag = r.reset ? '<span class="tag bad">restart</span>' : r.again ? '<span class="tag">repeat today</span>' : '';
+      return '<tr><td>' + (r.session === 0 ? 'Learned' : 'Review ' + r.session) + '</td><td>' + nice(r.date) + '</td><td>' + r.q + tag + '</td><td>' + r.ef.toFixed(2) + '</td><td>' + r.nextInterval + ' d</td></tr>';
+    }).join('');
+    $('out').innerHTML = '<table><tr><th>Session</th><th>Date</th><th>Rating</th><th>EF after</th><th>Next in</th></tr>' + rows + '</table>' +
+      '<div class="stats"><div><span class="muted">Next review</span><b>' + nice(s.nextDate) + '</b></div><div><span class="muted">In</span><b>' + s.nextInterval + ' days</b></div><div><span class="muted">Easiness factor</span><b>' + s.ef.toFixed(2) + '</b></div></div>';
+  }
+  function set(v) { $('seq').value = v; render(); }
+  ['start', 'seq'].forEach(function (i) { $(i).oninput = render; });
+  $('p1').onclick = function () { set('4 4 4 4 4 4'); }; $('p2').onclick = function () { set('5 5 5 5 5 5'); }; $('p3').onclick = function () { set('3 3 3 3 3 3'); }; $('p4').onclick = function () { set('4 4 4 1 4 4'); };
+  render();
+})();
+</script>
+</body>
+</html>
