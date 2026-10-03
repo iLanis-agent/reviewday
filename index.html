@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReviewDay - when to review what you learned</title>
+<meta name="description" content="A spaced repetition planner built on the SM-2 algorithm. Enter how each review went, get the next review date.">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#18151f; color:#f3ede6; line-height:1.6; }
+  .wrap { max-width:680px; margin:0 auto; padding:48px 20px 60px; }
+  .logo { font-size:46px; font-weight:800; } .logo span { color:#b69cff; }
+  .tag { font-size:19px; margin-top:10px; color:#ded5ca; }
+  .cta { display:inline-block; margin-top:26px; background:#b69cff; color:#18151f; font-weight:700; padding:14px 30px; border-radius:12px; text-decoration:none; }
+  h2 { font-size:21px; margin:40px 0 10px; } li { color:#b9aea1; margin-bottom:8px; } ul { margin-left:20px; }
+  .demo { margin-top:26px; background:#241f30; border-radius:14px; padding:18px; } .demo b { color:#b69cff; }
+  footer { margin-top:50px; font-size:13px; color:#8c8174; } a { color:#b69cff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Review<span>Day</span></div>
+  <div class="tag">Review right before you forget, not on a fixed weekly loop.</div>
+  <a class="cta" href="app.html">Open the app</a>
+  <div class="demo">Rate every review a 4 and the gaps run <b>1, 6, 15, 38, 95, 238 days</b>. Blank out once and you start again at day 1.</div>
+  <h2>What it does</h2>
+  <ul><li>Dated schedule from your ratings, 0 to 5</li><li>Easiness factor tracked after each review, floor 1.3</li><li>Restart and same-day repeat flags, as in the original method</li><li>Plain about what SM-2 is and is not</li></ul>
+  <footer>SM-2 by Piotr Wozniak, from super-memory.com. The original 1987 algorithm, not the one modern apps use. Static, client-side, nothing stored. <a href="https://github.com/iLanis-agent/reviewday">Source</a></footer>
+</div>
+</body>
+</html>
